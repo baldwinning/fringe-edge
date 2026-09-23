@@ -41,12 +41,11 @@ def number(market, *keys):
 
 
 def is_combo(market):
+    # KXMV tickers are Kalshi multivariate/combo markets.
+    # Do NOT use mve_collection_ticker as a boolean combo flag: it can be
+    # populated broadly enough to incorrectly discard ordinary markets.
     ticker = str(market.get("ticker", "")).upper()
-    return bool(
-        market.get("mve_collection_ticker")
-        or market.get("mve_selected_legs")
-        or ticker.startswith("KXMV")
-    )
+    return ticker.startswith("KXMV")
 
 
 def money(value):
@@ -76,6 +75,8 @@ def main():
     )
 
     print(f"Kalshi open markets scanned: {len(raw)}")
+    kxmv = sum(1 for m in raw if str(m.get("ticker", "")).upper().startswith("KXMV"))
+    print(f"KXMV combo markets removed: {kxmv}")
     print(f"Standalone markets found: {len(standalone)}")
     print(f"Active standalone markets: {len(active)}")
     print("=" * 90)
