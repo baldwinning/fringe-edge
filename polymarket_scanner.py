@@ -6,6 +6,7 @@ import urllib.parse
 import urllib.request
 
 GAMMA = "https://gamma-api.polymarket.com/events"
+CLOB = "https://clob.polymarket.com"
 
 LANES = {
     "WEATHER": ["weather", "temperature", "rain", "snow", "hurricane", "storm", "tornado"],
@@ -71,6 +72,24 @@ def n(obj, *keys):
     return 0.0
 
 
+def clob_book(token_id):
+    """Public CLOB order book for one outcome token."""
+    try:
+        req = urllib.request.Request(
+            CLOB + "/book?" + urllib.parse.urlencode({"token_id": token_id}),
+            headers={"User-Agent": "fringe-edge/2.1"},
+        )
+        with urllib.request.urlopen(req, timeout=10) as r:
+            book = json.load(r)
+        bids = book.get("bids") or []
+        asks = book.get("asks") or []
+        best_bid = max((float(x["price"]) for x in bids), default=None)
+        best_ask = min((float(x["price"]) for x in asks), default=None)
+        return best_bid, best_ask
+    except Exception:
+        return None, None
+
+
 def main():
     events = get_events()
     candidates = []
@@ -104,14 +123,19 @@ def main():
     print("=" * 88)
 
     for lanes, event, market, prices in candidates[:75]:
+        tokens = parse_json_field(market.get("clobTokenIds"))
+        yes_bid, yes_ask = clob_book(tokens[0]) if tokens else (None, None)
+        no_bid, no_ask = clob_book(tokens[1]) if len(tokens) > 1 else (None, None)
         print(f"\n[{','.join(lanes)}] {market.get('slug', market.get('id', '-'))}")
         print(f"  {event.get('title', '-')}")
         print(f"  market: {market.get('question', '-')}")
         print(
-            f"  YES {prices[0]} | NO {prices[1]}"
-            f" | bestBid {market.get('bestBid', '-')}"
-            f" | bestAsk {market.get('bestAsk', '-')}"
-            f" | spread {market.get('spread', '-')}"
+            f"  CLOB YES {yes_bid if yes_bid is not None else '-'} / {yes_ask if yes_ask is not None else '-'}"
+            f" | NO {no_bid if no_bid is not None else '-'} / {no_ask if no_ask is not None else '-'}"
+        )
+        print(
+            f"  displayed YES {prices[0]} | NO {prices[1]}"
+            f" | Gamma spread {market.get('spread', '-')}"
         )
         print(
             f"  vol24h {market.get('volume24hr', '-')}"
