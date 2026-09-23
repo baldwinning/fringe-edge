@@ -22,8 +22,6 @@ def get_events(limit=500):
     params = urllib.parse.urlencode({
         "active": "true",
         "closed": "false",
-        "order": "volume_24hr",
-        "ascending": "false",
         "limit": limit,
         "offset": 0,
     })
