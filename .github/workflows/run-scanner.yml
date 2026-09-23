@@ -17,3 +17,6 @@ jobs:
 
       - name: Run Kalshi scanner
         run: python scanner.py
+
+      - name: Run Polymarket scanner
+        run: python polymarket_scanner.py
