@@ -90,7 +90,7 @@ def main():
     )
 
     print(f"Kalshi open markets scanned: {len(raw)}")
-    print(f"Clean standalone markets: {len(clean)}")
+    print(f"Active standalone markets: {len(clean)}")
     print("=" * 90)
 
     for market in clean[:50]:
