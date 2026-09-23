@@ -15,6 +15,7 @@ LANES = {
     "ENERGY": ["oil", "gas", "natural gas", "electricity", "power", "energy"],
     "WORLD": ["war", "ceasefire", "sanction", "tariff", "iran", "russia", "ukraine", "china"],
     "SCI_TECH": ["spacex", "launch", "rocket", "ai", "openai", "nvidia"],
+    "SPORTS": ["nfl", "nba", "mlb", "nhl", "wnba", "ncaa", "football", "basketball", "baseball", "hockey", "tennis", "golf", "soccer"],
 }
 
 
