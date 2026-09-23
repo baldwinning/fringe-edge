@@ -20,3 +20,6 @@ jobs:
 
       - name: Run Polymarket scanner
         run: python polymarket_scanner.py
+
+      - name: Run cross-market edge detector
+        run: python cross_market.py
