@@ -76,7 +76,7 @@ def main():
         score,p=best
         pb,pa=book(p["yes"])
         if pb is None or pa is None:continue
-        km=(k["bid"]+k["ask"])/2; pm=(pb+pa)/2
+        pm=(pb+pa)/2
         gap=abs(km-pm)
         # Conservative alert threshold: large enough to matter, but still requires manual rule verification.
         if gap>=0.05:matches.append((gap,score,k,p,pb,pa))
