@@ -27,16 +27,38 @@ def get_markets(limit=1000):
 def main():
     markets = get_markets()
 
-    # No homemade market-type filtering. Sort only for display.
-    markets.sort(
-        key=lambda m: float(m.get("volume_24h_fp") or m.get("volume_fp") or 0),
+    # Keep discovery native to Kalshi; only rank/filter for tradability here.
+    def n(m, key):
+        try:
+            return float(m.get(key) or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    def tradable(m):
+        yb = n(m, "yes_bid_dollars")
+        ya = n(m, "yes_ask_dollars")
+        nb = n(m, "no_bid_dollars")
+        na = n(m, "no_ask_dollars")
+        activity = max(n(m, "volume_24h_fp"), n(m, "volume_fp"), n(m, "open_interest_fp"))
+        sane_yes = 0 < yb < 1 and 0 < ya < 1 and yb <= ya
+        sane_no = 0 < nb < 1 and 0 < na < 1 and nb <= na
+        return activity > 0 and (sane_yes or sane_no)
+
+    tradable_markets = [m for m in markets if tradable(m)]
+    tradable_markets.sort(
+        key=lambda m: (
+            n(m, "volume_24h_fp"),
+            n(m, "open_interest_fp"),
+            n(m, "volume_fp"),
+        ),
         reverse=True,
     )
 
     print(f"Kalshi open non-MVE markets returned: {len(markets)}")
+    print(f"Tradable active markets: {len(tradable_markets)}")
     print("=" * 88)
 
-    for m in markets[:50]:
+    for m in tradable_markets[:50]:
         print(f"\n{m.get('ticker', '-')}")
         print(f"  {m.get('title', '-')}")
         print(
